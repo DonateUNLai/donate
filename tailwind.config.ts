@@ -10,14 +10,23 @@ const config: Config = {
   ],
   theme: {
     extend: {
-      backgroundImage: {
-        "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
-        "gradient-conic":
-          "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
+      fontFamily: {
+        'poppins': ["Poppins"]
       },
     },
   },
   darkMode: 'class',
-  plugins: [nextui()],
+  plugins: [nextui({
+    defaultTheme: 'light',
+    themes: {
+      light: {
+        colors: {
+          primary: {
+            DEFAULT: 'rgba(94, 219, 208, 1)'
+          }
+        }
+      }
+    }
+  })],
 };
 export default config;
