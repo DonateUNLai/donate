@@ -1,5 +1,5 @@
 "use client"
-import { useAccount, useDisconnect } from 'wagmi';
+import { useAccount, useDisconnect, useSwitchChain } from 'wagmi';
 import { signMessage } from '@wagmi/core';
 import { NextPage } from 'next';
 import Head from 'next/head';
@@ -10,13 +10,7 @@ import { useEffect, useCallback } from 'react';
 import { fetchNonce, verifySign, fetchProfile } from './utils'
 import { config } from '@/config';
 
-const links = [
-    { title: 'Home', link: '/' },
-    { title: 'About', link: '/about' },
-    { title: 'Discover', link: '/discover' },
-    { title: 'Service', link: '/service' },
-    { title: 'Contact', link: '/contact' },
-]
+
 
 const projects = [
     { title: "Ukraine 1", url: '/images/project/1.png' },
@@ -26,10 +20,9 @@ const projects = [
 ]
 
 const Page: NextPage = () => {
-
-    const { disconnect } = useDisconnect()
-    const { address, isConnected } = useAccount();
-
+    const { chains, switchChain } = useSwitchChain();
+    const { disconnect } = useDisconnect();
+    const { address, isConnected, chain } = useAccount();
     const handleLogin = useCallback(async () => {
         try {
             if (address) {
@@ -54,7 +47,7 @@ const Page: NextPage = () => {
 
 
     useEffect(() => {
-        if (isConnected) {
+        if (!isConnected) {
             handleLogin();
         }
     }, [handleLogin, isConnected])
@@ -64,8 +57,18 @@ const Page: NextPage = () => {
             <Head>
                 <title>UN Donate</title>
             </Head>
-            <header className='mt-[70px]'>
-                <Navs links={links} isConnected={isConnected} address={address} onDisConnect={disconnect} />
+            <header className='mt-[70px] sticky top-0 bg-white'>
+                <Navs
+                    isConnected={isConnected}
+                    address={address}
+                    onDisConnect={disconnect}
+                    chain={chain}
+                    chains={chains.map(i => ({
+                        key: i.name,
+                        title: i.name,
+                        onClick: () => switchChain({ chainId: i.id as any })
+                    }))}
+                />
             </header>
             <main className='mt-[120px] px-[245px]'>
                 <article>
@@ -88,6 +91,24 @@ const Page: NextPage = () => {
                                     </figure>
                                 ))
                             }
+                        </div>
+                    </section>
+                </article>
+                <article className='mt-[85px] font-bold text-[#333]'>
+                    <section className='flex flex-col gap-[36px]'>
+                        <h2 className='text-[32px] leading-[38px]'>Our <span className='text-[#5EDBD0]'>solution</span></h2>
+                        <div>
+                            <h5 className='text-[24px]'>Direct Giving</h5>
+                            <p className='font-normal text-[18px] text-[#909090] leading-[30px]'>Utilizing the transparency and immutability of blockchain technology, we shine the light on humanitarianaid,ensuring that help reaches those who need it most, efficiently and without compromise.</p>
+                        </div>
+                        <div>
+                            <h5 className='text-[24px]'>Transparency</h5>
+                            <p className='font-normal text-[18px] text-[#909090] leading-[30px]'>We revolutionize global giving by making it more transparent to address challenges facing thesocial sector such as corruption, lack of trust in nonprofits, high global transfer fees, inefficientprocesses and lack of accountability in donor spending.</p>
+
+                        </div>
+                        <div>
+                            <h5 className='text-[24px]'>Transformative Tech</h5>
+                            <p className='font-normal text-[18px] text-[#909090] leading-[30px]'>We believe tech should serve people so we repurpose emerging tech as tools for social change.</p>
                         </div>
                     </section>
                 </article>

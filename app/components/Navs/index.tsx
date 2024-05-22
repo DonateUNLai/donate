@@ -1,8 +1,12 @@
-import { Button } from "@nextui-org/react";
 import { useRouter, usePathname } from "next/navigation";
 import Image from 'next/image';
-import { useEffect, useState } from "react";
+import { MouseEvent, useEffect, useState } from "react";
+import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { WalletOptions } from "../WalletOptions";
+import Dropdown from "../Dropdown";
+import type { DropdownItem } from "../Dropdown";
+import { message } from "@/app/utils";
+import { Avatar } from "@nextui-org/react";
 
 interface Link {
     title: string;
@@ -10,13 +14,15 @@ interface Link {
 }
 
 interface NavsProps {
-    links: Link[];
+    links?: Link[];
     isConnected: boolean;
     address?: string;
     onDisConnect: () => void;
+    chain?: Record<string, any>;
+    chains?: DropdownItem[];
 }
 export default function Navs(props: NavsProps) {
-    const { links = [], isConnected, address, onDisConnect } = props;
+    const { links = [], chains = [], chain, isConnected, address = '', onDisConnect } = props;
     const router = useRouter();
     const pathname = usePathname();
     const [active, setActive] = useState<string>('/');
@@ -26,9 +32,15 @@ export default function Navs(props: NavsProps) {
     }, [pathname])
 
 
+    const handleCopy = (event: MouseEvent) => {
+        event.preventDefault();
+        message.info('Copied!')
+    }
+
+
 
     return (
-        <div className="flex flex-row items-center justify-between sticky bottom-0 h-[72px] px-6">
+        <div className="flex flex-row items-center justify-between h-[72px] px-6">
             <div className="cursor-pointer" onClick={() => router.push('/')}>
                 <Image src="/images/logo.png" alt="logo" width={294} height={45} />
             </div>
@@ -51,7 +63,27 @@ export default function Navs(props: NavsProps) {
                 )) : null}
             </nav>
             {
-                !isConnected ? (<WalletOptions />) : (<span onClick={onDisConnect}>{address}</span>)
+                !isConnected ?
+                    (<WalletOptions />) :
+                    (
+                        <div className="relative flex flex-row gap-[30px]">
+                            <Dropdown items={chains}>
+                                <span className="w-[200px] h-[50px] bg-[#5EDBD0] rounded-[10px] flex flex-row items-center justify-center text-[#5EDBD0] cursor-pointer border-[1px] border-solid border-[#5EDBD0] bg-white">{chain?.name}</span>
+                            </Dropdown>
+                            <Dropdown items={[{ key: 'logout', title: 'Logout', onClick: onDisConnect }]}>
+                                <div className="w-[260px] h-[50px] bg-[#5EDBD0] rounded-[10px] flex flex-row items-center justify-center text-white cursor-pointer">
+                                    <span className="font-semibold mr-[12px]">{address?.slice(0, 4)}...{address?.slice(-6)}</span>
+                                </div>
+                            </Dropdown>
+                            <Avatar src="/images/avatar.png" />
+                            <div className="absolute top-[15px] left-[440px] z-50 cursor-pointer">
+                                <CopyToClipboard text={address}>
+                                    <Image src='/icons/copy.svg' alt="copy" width={18} height={18} onClick={handleCopy} />
+                                </CopyToClipboard>
+                            </div>
+                        </div>
+
+                    )
             }
 
         </div>

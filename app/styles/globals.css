@@ -6,4 +6,7 @@
     font-family: Inter;
     font-size: 20px;
     background: url('/images/bg.png');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
 }
