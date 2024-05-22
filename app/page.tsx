@@ -1,14 +1,9 @@
 "use client"
-import { useAccount, useDisconnect, useSwitchChain } from 'wagmi';
-import { signMessage } from '@wagmi/core';
 import { NextPage } from 'next';
+import { useRouter } from "next/navigation";
 import Head from 'next/head';
-import Navs from './components/Navs';
 import { Button } from '@nextui-org/react';
 import Image from 'next/image';
-import { useEffect, useCallback } from 'react';
-import { fetchNonce, verifySign, fetchProfile } from './utils'
-import { config } from '@/config';
 
 
 
@@ -20,56 +15,12 @@ const projects = [
 ]
 
 const Page: NextPage = () => {
-    const { chains, switchChain } = useSwitchChain();
-    const { disconnect } = useDisconnect();
-    const { address, isConnected, chain } = useAccount();
-    const handleLogin = useCallback(async () => {
-        try {
-            if (address) {
-                const { data } = await fetchNonce({ address })
-                const nonce = data.nonce;
-                if (nonce) {
-                    console.log(nonce)
-                    const signature = await signMessage(config, { message: String(nonce) })
-                    const { data: verifyData } = await verifySign({ address, signature });
-                    const { token } = verifyData;
-                    if (token) {
-                        localStorage.setItem('token', token);
-                        await fetchProfile();
-                    };
-                }
-            }
-        } catch (error) {
-            console.log('login error:', error);
-            disconnect()
-        }
-    }, [address, disconnect])
-
-
-    useEffect(() => {
-        if (!isConnected) {
-            handleLogin();
-        }
-    }, [handleLogin, isConnected])
-
+    const router = useRouter();
     return (
         <div>
             <Head>
                 <title>UN Donate</title>
             </Head>
-            <header className='mt-[70px] sticky top-0 bg-white'>
-                <Navs
-                    isConnected={isConnected}
-                    address={address}
-                    onDisConnect={disconnect}
-                    chain={chain}
-                    chains={chains.map(i => ({
-                        key: i.name,
-                        title: i.name,
-                        onClick: () => switchChain({ chainId: i.id as any })
-                    }))}
-                />
-            </header>
             <main className='mt-[120px] px-[245px]'>
                 <article>
                     <section>
@@ -80,7 +31,7 @@ const Page: NextPage = () => {
                     <section className='mt-[72px]'>
                         <div className='w-full flex flex-row items-center justify-between'>
                             <h5 className='font-bold leading-[30px]'>Projects</h5>
-                            <Button className='font-normal color-[#333]' variant="light">More</Button>
+                            <Button className='font-normal color-[#333]' variant="light" onClick={() => router.push('/projects')}>More</Button>
                         </div>
                         <div className='mt-[15px] grid grid-cols-4 gap-[30px]'>
                             {
@@ -112,7 +63,6 @@ const Page: NextPage = () => {
                         </div>
                     </section>
                 </article>
-                <footer></footer>
             </main>
         </div>
     )
