@@ -18,7 +18,6 @@ export default function Header() {
                 const { data } = await fetchNonce({ address })
                 const nonce = data.nonce;
                 if (nonce) {
-                    console.log(nonce)
                     const signature = await signMessage(config, { message: String(nonce) })
                     const { data: verifyData } = await verifySign({ address, signature });
                     const { token } = verifyData;
@@ -36,10 +35,10 @@ export default function Header() {
 
 
     useEffect(() => {
-        if (!isConnected) {
+        if (isConnected && !address) {
             handleLogin();
         }
-    }, [handleLogin, isConnected])
+    }, [handleLogin, isConnected, address])
 
 
     return (
