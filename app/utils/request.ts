@@ -26,6 +26,18 @@ request.interceptors.request.use(
     error => Promise.reject(error)
 )
 
+request.interceptors.response.use(
+    response => response,
+    error => {
+        if (error.response && error.response.status === 401) {
+            console.warn('no authorization,please login again');
+            localStorage.clear();
+            return;
+        }
+        return Promise.reject(error);
+    }
+)
+
 export {
     request
 }

@@ -1,4 +1,4 @@
-import { Dropdown as NextUiDropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@nextui-org/react";
+import { Dropdown as NextUIDropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@nextui-org/react";
 
 export interface DropdownItem {
     key: string;
@@ -15,7 +15,7 @@ export default function Dropdown(props: DropdownProps) {
     const { children, items = [] } = props;
     return (
         <div className="flex items-center gap-4">
-            <NextUiDropdown placement="bottom-start">
+            <NextUIDropdown placement="bottom-start">
                 <DropdownTrigger>{children}</DropdownTrigger>
                 <DropdownMenu variant="flat">
                     {
@@ -26,7 +26,7 @@ export default function Dropdown(props: DropdownProps) {
                         ))
                     }
                 </DropdownMenu>
-            </NextUiDropdown>
+            </NextUIDropdown>
         </div>
     );
 }

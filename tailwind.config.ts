@@ -13,6 +13,9 @@ const config: Config = {
       fontFamily: {
         'poppins': ["Poppins"]
       },
+      backgroundImage: {
+        'admin': "url('/images/bg_admin.png')"
+      }
     },
   },
   darkMode: 'class',

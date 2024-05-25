@@ -1,9 +1,8 @@
-'use client'
-
+import { usePathname } from "next/navigation";
 import { useSwitchChain, useDisconnect, useAccount } from "wagmi";
 import Navs from "../components/Navs"
 import { signMessage } from "@wagmi/core";
-import { useCallback, useEffect } from "react";
+import { useEffect } from "react";
 import { fetchNonce, verifySign, fetchProfile } from "../utils";
 import { config } from "@/config";
 
@@ -11,8 +10,20 @@ export default function Header() {
     const { chains, switchChain } = useSwitchChain();
     const { disconnect } = useDisconnect();
     const { address, isConnected, chain } = useAccount();
+    const pathname = usePathname();
 
-    const handleLogin = useCallback(async () => {
+    const handleLogout = () => {
+        disconnect();
+        localStorage.clear();
+    }
+
+    const checkLoginStatus = async () => {
+        const { data } = await fetchProfile() || {};
+        if (data?.address === address) return;
+        handleLogout();
+    }
+
+    const handleLogin = async () => {
         try {
             if (address) {
                 const { data } = await fetchNonce({ address })
@@ -21,24 +32,29 @@ export default function Header() {
                     const signature = await signMessage(config, { message: String(nonce) })
                     const { data: verifyData } = await verifySign({ address, signature });
                     const { token } = verifyData;
-                    if (token) {
-                        localStorage.setItem('token', token);
-                        await fetchProfile();
-                    };
+                    if (token) localStorage.setItem('token', token);
+                    const { data } = await fetchProfile()
+                    localStorage.setItem('profile', JSON.stringify(data))
                 }
             }
         } catch (error) {
-            console.log('login error:', error);
-            disconnect()
+            handleLogout();
         }
-    }, [address, disconnect])
+    }
+
+    useEffect(() => {
+        if (isConnected) {
+            checkLoginStatus()
+        }
+    }, [pathname, isConnected])
 
 
     useEffect(() => {
-        if (isConnected && !address) {
+        const token = localStorage.getItem('token');
+        if (!token) {
             handleLogin();
         }
-    }, [handleLogin, isConnected, address])
+    }, [isConnected, address])
 
 
     return (
