@@ -11,7 +11,8 @@ interface FormProps {
     fields: Field[];
     onSubmit: (values: Record<string, any>) => void
     onCancel: () => void;
-    loading?: boolean
+    loading?: boolean;
+    disabled?: boolean;
 }
 
 const formatDate = (dateData: Record<string, any>) => Math.floor(new Date(dateData.year, dateData.month - 1, dateData.day).getTime() / 1000);
@@ -25,7 +26,7 @@ const formatData = (data: Record<string, any>) => {
 }
 
 export default function Form(props: FormProps) {
-    const { fields, onSubmit, onCancel, loading } = props;
+    const { fields, onSubmit, onCancel, loading, disabled } = props;
     const [form, setForm] = useState<Record<string, any>>({});
     console.log('form', form)
     const renderFormField = (i: Field) => {
@@ -62,7 +63,7 @@ export default function Form(props: FormProps) {
 
             <div className="flex flex-row items-center justify-center gap-[8px]">
                 <Button color="primary" onClick={() => onSubmit(formatData(form))} isLoading={loading}>Create</Button>
-                <Button onClick={onCancel}>Cancle</Button>
+                <Button onClick={onCancel} disabled={disabled}>Cancle</Button>
             </div>
         </div>
     )

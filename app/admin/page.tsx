@@ -1,61 +1,63 @@
 'use client'
 import { useEffect, useState } from 'react';
 import { NextPage } from 'next';
-import { parseEther, Address } from 'viem';
+import { Address } from 'viem';
 import { useWaitForTransactionReceipt, useWriteContract } from 'wagmi';
 import { Button } from '@nextui-org/react';
 import Header from '../layouts/Header';
 import Table from '../components/Table';
 import Modal from '../components/Modal';
 import Form from '../components/Form';
-import { donateAbi, createProject } from '../utils';
+import { donateAbi, createProject, fetchProjects, message } from '../utils';
 
 const columns = [
     { name: "Title", uid: "title" },
     { name: "Image", uid: "url" },
-    { name: "Sescription", uid: "description" },
-    { name: "Amount", uid: "amount" },
+    { name: "Description", uid: "description" },
+    { name: "Amount", uid: "totalAmount" },
     { name: "EndTime", uid: "endTime" },
 ];
 
-const dataSource = new Array(12).fill(1).map((_, id) => ({
-    id,
-    title: `Ukraine ${id + 1}`,
-    url: '/images/project/1.png',
-    description: `UN works for peaceful resolutionof crisis, respect for human rights ${id + 1}`,
-    amount: `0x3d**dss${id}`,
-    endTime: `2028-01-1${id}`
-}))
+interface List {
+    _id?: string;
+    address?: string;
+    creator?: string;
+    description?: string;
+    endTime?: number;
+    hash?: string;
+    startTime?: number;
+    title?: string;
+    totalAmount?: number;
+}
 
 const Admin: NextPage = () => {
-    const [open, setOpen] = useState<boolean>(true);
+    const [list, setList] = useState<List[]>([]);
+    const [update, setUpdate] = useState<number>(0);
+    const forceUpdate = () => setUpdate(update => update + 1);
+    const [open, setOpen] = useState<boolean>(false);
     const { data: hash, isPending, writeContract } = useWriteContract();
-    const { isLoading, isSuccess, isError } = useWaitForTransactionReceipt({
-        hash
-    });
+    const { isLoading, isSuccess, isError, error } = useWaitForTransactionReceipt({ hash });
+
+    const handleFetchProjects = async () => {
+        const { data = [] } = await fetchProjects();
+        setList(data);
+    }
 
     const handleSubmit = async (values: Record<string, any>) => {
         const { _title, _description, _totalAmount, _endTime } = values;
-        console.log('values', values)
-        console.log('donateAbi address', donateAbi.address);
-        console.log('donateAbi abi', donateAbi.abi);
-        try {
-            donateAbi.abi
-            writeContract({
-                address: donateAbi.address as Address,
-                abi: donateAbi.abi,
-                functionName: 'createDonate',
-                args: [_totalAmount, _endTime, _title, _description],
-            })
-        } catch (err) {
-            console.log(err)
-        }
+        writeContract({
+            address: donateAbi.address as Address,
+            abi: donateAbi.abi,
+            functionName: 'createDonate',
+            args: [BigInt(_totalAmount), _endTime, _title, _description],
+        })
 
     }
 
     const handleProjectCreate = async () => {
         await createProject({ hash })
         setOpen(!open);
+        forceUpdate();
     }
 
     useEffect(() => {
@@ -64,22 +66,29 @@ const Admin: NextPage = () => {
         }
     }, [hash])
 
-    console.log('hash', hash);
-    console.log('isPending', isPending);
-    console.log('isLoading', isLoading);
-    console.log('isSuccess', isSuccess);
-    console.log('isError', isError);
+    useEffect(() => {
+        if (isSuccess) {
+            message.success('Create Project Successfully!')
+        }
+    }, [isSuccess])
+
+    useEffect(() => {
+        handleFetchProjects()
+    }, [update])
+
+
 
     return (
         <div>
             <Header />
             <Modal open={open} onClose={() => setOpen(!open)} title='Create Project'>
                 <Form
+                    disabled={isPending}
                     loading={isLoading}
                     fields={[
                         { type: 'text', label: 'Title', name: '_title' },
                         { type: 'textarea', label: 'Description', name: '_description' },
-                        { type: 'number', label: 'Raised Amount:', name: '_totalAmount' },
+                        { type: 'number', label: 'Raised Amount', name: '_totalAmount' },
                         { type: 'date', label: 'End Time', name: '_endTime' },
                     ]}
                     onSubmit={handleSubmit}
@@ -90,7 +99,7 @@ const Admin: NextPage = () => {
                 <Button className='mb-[12px]' size='sm' color="primary" onClick={() => setOpen(!open)}>Add Project</Button>
 
                 <Table
-                    dataSource={dataSource}
+                    dataSource={list}
                     columns={columns}
                 />
             </div>

@@ -17,7 +17,7 @@ const fetchNonce = async (data: FetchNonceData) => await request.post('/user/non
 const verifySign = async (data: VerifySignData) => await request.post('/user/verify', data);
 const fetchProfile = async () => await request.post('/user/profile');
 const createProject = async (data: CreateProjectData) => await request.post('/project', data);
-const fetchProjects = async () => await request.get('/projects');
+const fetchProjects = async () => await request.get('/project');
 
 export {
     fetchNonce,

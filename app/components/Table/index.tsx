@@ -1,5 +1,5 @@
 import React from "react";
-import { Table as NextUITable, TableHeader, TableColumn, TableBody, TableRow, TableCell, User, Chip, Tooltip, getKeyValue } from "@nextui-org/react";
+import { Table as NextUITable, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@nextui-org/react";
 
 interface Column {
     name: string;
@@ -32,7 +32,7 @@ export default function Table(props: TableProps) {
             </TableHeader>
             <TableBody items={dataSource}>
                 {(item) => (
-                    <TableRow key={item.id}>
+                    <TableRow key={item._id}>
                         {(columnKey) => <TableCell>{renderCell(columnKey as string, item)}</TableCell>}
                     </TableRow>
                 )}
