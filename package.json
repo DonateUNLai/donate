@@ -23,7 +23,7 @@
     "react-copy-to-clipboard": "^5.1.0",
     "react-dom": "^18",
     "react-toastify": "^10.0.5",
-    "viem": "2.x",
+    "viem": "~2.11.1",
     "wagmi": "^2.9.2"
   },
   "devDependencies": {

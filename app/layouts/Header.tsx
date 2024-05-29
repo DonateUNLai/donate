@@ -43,7 +43,8 @@ export default function Header() {
     }
 
     useEffect(() => {
-        if (isConnected) {
+        const token = localStorage.getItem('token');
+        if (isConnected && token) {
             checkLoginStatus()
         }
     }, [pathname, isConnected])
