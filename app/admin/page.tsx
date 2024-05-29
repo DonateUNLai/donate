@@ -57,18 +57,18 @@ const Admin: NextPage = () => {
     const handleProjectCreate = async () => {
         await createProject({ hash })
         setOpen(!open);
-        forceUpdate();
     }
 
     useEffect(() => {
         if (hash) {
-            handleProjectCreate()
+            handleProjectCreate();
         }
     }, [hash])
 
     useEffect(() => {
         if (isSuccess) {
-            message.success('Create Project Successfully!')
+            message.success('Create Project Successfully!');
+            forceUpdate();
         }
     }, [isSuccess])
 
