@@ -4,18 +4,24 @@ import { useRouter } from "next/navigation";
 import Head from 'next/head';
 import { Button } from '@nextui-org/react';
 import Image from 'next/image';
-
-
-
-const projects = [
-    { title: "Ukraine 1", url: '/images/project/1.png' },
-    { title: "Ukraine 2", url: '/images/project/2.png' },
-    { title: "Ukraine 3", url: '/images/project/3.png' },
-    { title: "Ukraine 4", url: '/images/project/4.png' },
-]
+import { useEffect, useState } from 'react';
+import { Project } from './type';
+import { fetchProjects } from './utils';
 
 const Page: NextPage = () => {
+    const [list, setList] = useState<Project[]>([]);
     const router = useRouter();
+
+    const handleFetchProjects = async () => {
+        const { data = [] } = await fetchProjects();
+        setList(data);
+    }
+
+    useEffect(() => {
+        handleFetchProjects();
+    }, [])
+
+
     return (
         <div>
             <Head>
@@ -35,9 +41,9 @@ const Page: NextPage = () => {
                         </div>
                         <div className='mt-[15px] grid grid-cols-4 gap-[30px]'>
                             {
-                                projects.map(p => (
+                                list.slice(0, 4).map((p, index) => (
                                     <figure key={p.title} className='w-[340px] h-[250px] px-[12px] py-[15px] bg-white rounded-[10px] overflow-hidden'>
-                                        <Image src={p.url} alt={p.title} width={310} height={170} />
+                                        <Image src={`/images/project/${index + 1}.png`} alt={p.title!} width={310} height={170} />
                                         <figcaption className='mt-[20px] font-medium leading-[24px]'>{p.title}</figcaption>
                                     </figure>
                                 ))
@@ -45,7 +51,7 @@ const Page: NextPage = () => {
                         </div>
                     </section>
                 </article>
-                <article className='mt-[85px] font-bold text-[#333]'>
+                <article className='mt-[85px] mb-[60px] font-bold text-[#333]'>
                     <section className='flex flex-col gap-[36px]'>
                         <h2 className='text-[32px] leading-[38px]'>Our <span className='text-[#5EDBD0]'>solution</span></h2>
                         <div>

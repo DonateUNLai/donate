@@ -1,13 +1,17 @@
-import { useState } from "react";
-import { Input, Textarea, DatePicker, Button } from "@nextui-org/react";
+import { useEffect, useState } from "react";
+import { Input, Textarea, Button } from "@nextui-org/react";
+import Select, { SelectOption } from "../Select";
 
 interface Field {
-    type: 'text' | 'date' | 'textarea' | 'number',
+    type: 'text' | 'date' | 'textarea' | 'number' | 'select',
     name: string;
     label: string;
+    options?: SelectOption[];
+    onFormItemChange?: (value: any) => void;
 }
 
 interface FormProps {
+    initValues?: Record<string, any>;
     fields: Field[];
     onSubmit: (values: Record<string, any>) => void
     onCancel: () => void;
@@ -15,39 +19,48 @@ interface FormProps {
     disabled?: boolean;
 }
 
-const formatDate = (dateData: Record<string, any>) => Math.floor(new Date(dateData.year, dateData.month - 1, dateData.day).getTime() / 1000);
-
-const formatData = (data: Record<string, any>) => {
-    const newData = { ...data };
-    Object.keys(newData).forEach(key => Object.assign(newData, {
-        [key]: typeof newData[key] === 'object' ? formatDate(newData[key]) : newData[key]
-    }))
-    return newData;
-}
-
 export default function Form(props: FormProps) {
-    const { fields, onSubmit, onCancel, loading, disabled } = props;
+    const { fields, onSubmit, onCancel, loading, disabled, initValues = {} } = props;
     const [form, setForm] = useState<Record<string, any>>({});
-    console.log('form', form)
+
+    useEffect(() => {
+        setForm({
+            ...form,
+            ...initValues
+        })
+    }, [JSON.stringify(initValues)])
+
     const renderFormField = (i: Field) => {
-        const { type, name } = i;
+        const { type, name, options = [], label, onFormItemChange } = i;
+
+        const handleValueChange = (key: string, value: any) => {
+            if (onFormItemChange) onFormItemChange(value);
+            setForm({ ...form, [key]: value })
+        }
+
         if (type === 'textarea') {
             return (
-                <Textarea value={form[name]} onChange={e => setForm({ ...form, [name]: e.target.value })} />
+                <Textarea value={form[name]} onChange={e => handleValueChange(name, e.target.value)} />
             )
         }
         if (type === 'number') {
             return (
-                <Input type="number" value={form[name]} onChange={e => setForm({ ...form, [name]: Number(e.target.value) })} />
+                <Input type="number" value={form[name]} onChange={e => handleValueChange(name, Number(e.target.value))} />
             )
         }
         if (type === 'date') {
             return (
-                <DatePicker value={form[name]} onChange={value => setForm({ ...form, [name]: value })} />
+                <Input type='datetime-local' value={form[name]} onChange={e => handleValueChange(name, e.target.value)} />
+            )
+        }
+        if (type === 'select') {
+
+            return (
+                <Select label={label} value={form[name]} options={options} onChange={value => handleValueChange(name, value)} />
             )
         }
         return (
-            <Input value={form[name]} onChange={e => setForm({ ...form, [name]: e.target.value })} />
+            <Input value={form[name]} onChange={e => handleValueChange(name, e.target.value)} />
         )
     }
     return (
@@ -62,7 +75,7 @@ export default function Form(props: FormProps) {
             }
 
             <div className="flex flex-row items-center justify-center gap-[8px]">
-                <Button color="primary" onClick={() => onSubmit(formatData(form))} isLoading={loading}>Create</Button>
+                <Button color="primary" onClick={() => onSubmit(form)} isLoading={loading}>Create</Button>
                 <Button onClick={onCancel} disabled={disabled}>Cancle</Button>
             </div>
         </div>

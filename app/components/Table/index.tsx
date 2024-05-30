@@ -4,7 +4,7 @@ import { Table as NextUITable, TableHeader, TableColumn, TableBody, TableRow, Ta
 interface Column {
     name: string;
     uid: string;
-    render?: (item: Record<string, any>) => React.ReactNode;
+    render?: (item: any) => React.ReactNode;
 }
 
 export interface TableProps {

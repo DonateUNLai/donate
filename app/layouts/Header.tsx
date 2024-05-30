@@ -13,8 +13,8 @@ export default function Header() {
     const pathname = usePathname();
 
     const handleLogout = () => {
-        disconnect();
         localStorage.clear();
+        disconnect();
     }
 
     const checkLoginStatus = async () => {

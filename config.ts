@@ -1,5 +1,5 @@
 import { http, createConfig } from '@wagmi/core';
-import { mainnet, sepolia, avalancheFuji } from '@wagmi/core/chains';
+import { sepolia, avalancheFuji } from '@wagmi/core/chains';
 
 declare module 'wagmi' {
     interface Register {
@@ -8,9 +8,8 @@ declare module 'wagmi' {
 }
 
 export const config = createConfig({
-    chains: [mainnet, sepolia, avalancheFuji],
+    chains: [sepolia, avalancheFuji],
     transports: {
-        [mainnet.id]: http(process.env.INFURA_API_KEY),
         [avalancheFuji.id]: http(process.env.INFURA_API_KEY),
         [sepolia.id]: http(process.env.INFURA_API_KEY)
     },

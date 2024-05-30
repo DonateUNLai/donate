@@ -9,29 +9,22 @@ import Table from '../components/Table';
 import Modal from '../components/Modal';
 import Form from '../components/Form';
 import { donateAbi, createProject, fetchProjects, message } from '../utils';
+import { Project } from '../type';
 
 const columns = [
     { name: "Title", uid: "title" },
     { name: "Image", uid: "url" },
     { name: "Description", uid: "description" },
     { name: "Amount", uid: "totalAmount" },
-    { name: "EndTime", uid: "endTime" },
+    {
+        name: "EndTime",
+        uid: "endTime",
+        render: ({ endTime }: { endTime: number }) => new Date(endTime * 1000).toISOString()?.replace('.000Z', '')?.split('T')?.join(' ') || '-'
+    },
 ];
 
-interface List {
-    _id?: string;
-    address?: string;
-    creator?: string;
-    description?: string;
-    endTime?: number;
-    hash?: string;
-    startTime?: number;
-    title?: string;
-    totalAmount?: number;
-}
-
 const Admin: NextPage = () => {
-    const [list, setList] = useState<List[]>([]);
+    const [list, setList] = useState<Project[]>([]);
     const [update, setUpdate] = useState<number>(0);
     const forceUpdate = () => setUpdate(update => update + 1);
     const [open, setOpen] = useState<boolean>(false);
@@ -49,7 +42,7 @@ const Admin: NextPage = () => {
             address: donateAbi.address as Address,
             abi: donateAbi.abi,
             functionName: 'createDonate',
-            args: [BigInt(_totalAmount), _endTime, _title, _description],
+            args: [BigInt(_totalAmount), new Date(_endTime).getTime() / 1000, _title, _description],
         })
 
     }

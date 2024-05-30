@@ -37,7 +37,10 @@ export default function Navs(props: NavsProps) {
         message.info('Copied!')
     }
 
-
+    const handleLogout = () => {
+        localStorage.clear();
+        onDisConnect();
+    }
 
     return (
         <div className="flex flex-row items-center justify-between h-[72px] px-6">
@@ -70,7 +73,7 @@ export default function Navs(props: NavsProps) {
                             <Dropdown items={chains}>
                                 <span className="w-[200px] h-[50px] bg-[#5EDBD0] rounded-[10px] flex flex-row items-center justify-center text-[#5EDBD0] cursor-pointer border-[1px] border-solid border-[#5EDBD0] bg-white">{chain?.name}</span>
                             </Dropdown>
-                            <Dropdown items={[{ key: 'logout', title: 'Logout', onClick: onDisConnect }]}>
+                            <Dropdown items={[{ key: 'logout', title: 'Logout', onClick: handleLogout }]}>
                                 <div className="w-[260px] h-[50px] bg-[#5EDBD0] rounded-[10px] flex flex-row items-center justify-center text-white cursor-pointer">
                                     <span className="font-semibold mr-[12px]">{address?.slice(0, 4)}...{address?.slice(-6)}</span>
                                 </div>
