@@ -17,10 +17,11 @@ interface FormProps {
     onCancel: () => void;
     loading?: boolean;
     disabled?: boolean;
+    submitText?: string;
 }
 
 export default function Form(props: FormProps) {
-    const { fields, onSubmit, onCancel, loading, disabled, initValues = {} } = props;
+    const { fields, onSubmit, onCancel, loading, disabled, initValues = {}, submitText = 'Create' } = props;
     const [form, setForm] = useState<Record<string, any>>({});
 
     useEffect(() => {
@@ -75,7 +76,7 @@ export default function Form(props: FormProps) {
             }
 
             <div className="flex flex-row items-center justify-center gap-[8px]">
-                <Button color="primary" onClick={() => onSubmit(form)} isLoading={loading}>Create</Button>
+                <Button color="primary" onClick={() => onSubmit(form)} isLoading={loading}>{submitText}</Button>
                 <Button onClick={onCancel} disabled={disabled}>Cancle</Button>
             </div>
         </div>

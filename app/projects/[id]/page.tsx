@@ -2,14 +2,14 @@
 import Form from '@/app/components/Form';
 import Modal from '@/app/components/Modal';
 import { Project } from '@/app/type';
-import { donateAbi, fetchProjects } from '@/app/utils';
+import { donateProject, donateProjectAbi, fetchProjects, message } from '@/app/utils';
 import { Button, Progress } from '@nextui-org/react';
 import { NextPage } from 'next';
 import Head from 'next/head';
 import Image from 'next/image';
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from 'react';
-import { Address } from 'viem';
+import { Address, parseEther, parseUnits } from 'viem';
 import { useAccount, useSwitchChain, useWaitForTransactionReceipt, useWriteContract } from 'wagmi';
 
 const projects = new Array(12).fill(1).map((_, id) => ({
@@ -25,7 +25,7 @@ const currency = [
 ]
 
 const Page: NextPage = () => {
-    const { address, isConnected, chain } = useAccount();
+    const { chain } = useAccount();
     const { chains, switchChain } = useSwitchChain();
     const { data: hash, isPending, writeContract } = useWriteContract();
     const { isLoading, isSuccess, isError, error } = useWaitForTransactionReceipt({ hash });
@@ -36,15 +36,26 @@ const Page: NextPage = () => {
     const index = searchParams.get('index');
     const router = useRouter();
 
+    console.log(isError, error)
 
     const handleSubmit = async (values: Record<string, any>) => {
-        const { _title, _description, _totalAmount, _endTime } = values;
-        // writeContract({
-        //     address: donateAbi.address as Address,
-        //     abi: donateAbi.abi,
-        //     functionName: 'donateContract',
-        //     args: [BigInt(_totalAmount), new Date(_endTime).getTime() / 1000, _title, _description],
-        // })
+        const { _assests, _amount } = values;
+        console.log(values, detail)
+        if (_assests === 'eth') {
+            writeContract({
+                address: detail.address as Address,
+                abi: donateProjectAbi.abi,
+                functionName: 'donateETH',
+                value: parseEther(String(_amount))
+            })
+        }
+        if (_assests === 'usdc')
+            writeContract({
+                address: detail.address as Address,
+                abi: donateProjectAbi.abi,
+                functionName: 'donateUSDC',
+                args: [parseUnits(_amount, 6)],
+            })
 
     }
 
@@ -60,6 +71,15 @@ const Page: NextPage = () => {
         handleFetchProject(id as string);
     }, [id])
 
+
+    useEffect(() => {
+        if (isSuccess) {
+            message.success('Create Project Successfully!');
+            donateProject({ hash })
+            setOpen(!open);
+        }
+    }, [isSuccess])
+
     return (
         <div>
             <Head>
@@ -67,6 +87,7 @@ const Page: NextPage = () => {
             </Head>
             <Modal open={open} onClose={() => setOpen(!open)} title='Donate funds'>
                 <Form
+                    submitText='Donate'
                     initValues={{
                         _network: chain?.id,
                         _assests: 'usdc'
