@@ -72,11 +72,16 @@ const Page: NextPage = () => {
     }, [id])
 
 
+
+    const handleDonateSuccess = async () => {
+        await donateProject({ hash })
+        setOpen(!open);
+    }
+
     useEffect(() => {
         if (isSuccess) {
-            message.success('Create Project Successfully!');
-            donateProject({ hash })
-            setOpen(!open);
+            message.success('Donate Successfully!');
+            handleDonateSuccess();
         }
     }, [isSuccess])
 

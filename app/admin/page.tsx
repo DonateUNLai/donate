@@ -43,7 +43,7 @@ const Admin: NextPage = () => {
             address: donateAbi.address as Address,
             abi: donateAbi.abi,
             functionName: 'createDonate',
-            args: [BigInt(_totalAmount), getTime(parse(_endTime, 'yyyy-MM-dd\'T\'HH:mm', new Date())), _title, _description],
+            args: [BigInt(_totalAmount), getTime(parse(_endTime, 'yyyy-MM-dd\'T\'HH:mm', new Date())) / 1000, _title, _description],
         })
 
     }
