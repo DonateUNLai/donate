@@ -21,9 +21,7 @@ const Admin: NextPage = () => {
   const [open, setOpen] = useState<boolean>(false);
   const [openBeneficiary, setBeneficiaryOpen] = useState<boolean>(false);
   const { data: hash, isPending, writeContract } = useWriteContract();
-  const { isLoading, isSuccess, isError, error } = useWaitForTransactionReceipt(
-    { hash }
-  );
+  const { isLoading, isSuccess } = useWaitForTransactionReceipt({ hash });
 
   const handleFetchProjects = async () => {
     const { data = [] } = await fetchProjects();

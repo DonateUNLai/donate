@@ -1,21 +1,19 @@
 "use client";
 import { Allocation, Donor, Project } from "@/app/type";
-import { fetchProjects, fetchDonations, fetchAllocations } from "@/app/utils";
+import {
+  fetchProjects,
+  fetchDonations,
+  fetchAllocations,
+  chainlinkAbi,
+} from "@/app/utils";
 import { Button, Progress } from "@nextui-org/react";
 import { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-
-const projects = new Array(12).fill(1).map((_, id) => ({
-  id,
-  title: `Ukraine ${id + 1}`,
-  url: "/images/project/1.png",
-  description: `Lorem ipsum dolor sit amet, consectetur adipiscing elitAenean euismod bibendum laoreet. Proin gravida dolorsit amet lacus accumsan et viverra justo commodo.Proin sodales pulvinar sic tempor. Sociis natoque penatibus et magnis dis parturient montes, nasceturridiculus mus.Nam fermentum, nulla luctus pharetravulputate, felis tellus mollis orci, sed rhoncus proninsapien nunc accuan eget. ${
-    id + 1
-  }`,
-}));
+import { Address } from "viem";
+import { useReadContract } from "wagmi";
 
 const Page: NextPage = () => {
   const [donors, setDonors] = useState<Donor[]>([]);
@@ -25,6 +23,12 @@ const Page: NextPage = () => {
   const { id } = useParams();
   const index = searchParams.get("index");
   const router = useRouter();
+
+  const { data: ethRate } = useReadContract({
+    address: chainlinkAbi.address as Address,
+    abi: chainlinkAbi.abi,
+    functionName: "getChainlinkDataFeedLatestAnswer",
+  });
 
   const handleFetchDonations = async (projectId: string) => {
     if (projectId) {
@@ -53,11 +57,11 @@ const Page: NextPage = () => {
     handleFetchAllocations(id as string);
   }, [id]);
 
-  const totalDonorsAmout = donors.reduce(
-    (acc, curr) => acc + Number(curr.amount),
-    0
-  );
-  console.log(totalDonorsAmout);
+  const totalDonorsAmout =
+    (donors.reduce((acc, curr) => acc + Number(curr.amount), 0) *
+      Number(ethRate)) /
+    Number(BigInt(10) ** BigInt(8));
+
   return (
     <div>
       <Head>
@@ -93,11 +97,19 @@ const Page: NextPage = () => {
                     width={471}
                     height={257}
                   />
-                  <Progress
-                    size="sm"
-                    value={totalDonorsAmout / detail.totalAmount!}
-                    title={String(totalDonorsAmout)}
-                  />
+                  <div className="flex flex-row items-center gap-[5px]">
+                    <span className="text-[12px]">
+                      {totalDonorsAmout?.toFixed(2)}
+                    </span>
+                    <Progress
+                      size="sm"
+                      value={(totalDonorsAmout / detail.totalAmount!) * 100}
+                      title={String(totalDonorsAmout)}
+                    />
+                    <span className="text-[12px]">
+                      {detail.totalAmount?.toFixed(2)}
+                    </span>
+                  </div>
                 </div>
                 <div className="max-h-[287px] flex flex-col flex-1 justify-between">
                   <blockquote className="font-normal leading-[21px] text-[#909090] text-[14px]">
