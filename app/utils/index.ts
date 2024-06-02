@@ -4,4 +4,5 @@ export * from './message';
 import donateAbi from './DonateFactory.json';
 import donateProjectAbi from './Donate.json';
 import fujiAbi from './Fuji.json';
-export { donateAbi, donateProjectAbi, fujiAbi };
+import nftAbi from './Nft.json';
+export { donateAbi, donateProjectAbi, fujiAbi, nftAbi };

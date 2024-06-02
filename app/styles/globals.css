@@ -10,3 +10,36 @@
     background-repeat: no-repeat;
     background-attachment: fixed;
 }
+
+@keyframes move-rotate {
+    0% {
+      transform: translateY(0) rotateZ(0);
+    }
+    50% {
+      transform: translateY(-10px) rotateZ(10deg);
+    }
+    100% {
+      transform: translateY(0) rotateZ(0);
+    }
+  }
+  
+  .animate-move-rotate {
+    animation: move-rotate 2s ease-in-out infinite;
+  }
+
+
+  @keyframes shake {
+    0% {
+      transform: translateX(-5px);
+    }
+    50% {
+      transform: translateX(5px);
+    }
+    100% {
+      transform: translateX(-5px);
+    }
+  }
+  
+  .animate-shake {
+    animation: shake 0.5s ease-in-out infinite;
+  }
