@@ -11,29 +11,15 @@ import Modal from "../components/Modal";
 import Form from "../components/Form";
 import { donateAbi, createProject, fetchProjects, message } from "../utils";
 import { Project } from "../type";
-
-const columns = [
-  { name: "Title", uid: "title" },
-  { name: "Image", uid: "url" },
-  { name: "Description", uid: "description" },
-  { name: "Amount", uid: "totalAmount" },
-  {
-    name: "EndTime",
-    uid: "endTime",
-    render: ({ endTime }: { endTime: number }) =>
-      new Date(endTime * 1000)
-        .toISOString()
-        ?.replace(".000Z", "")
-        ?.split("T")
-        ?.join(" ") || "-",
-  },
-];
+import Beneficiary from "../components/Beneficiary";
 
 const Admin: NextPage = () => {
   const [list, setList] = useState<Project[]>([]);
   const [update, setUpdate] = useState<number>(0);
+  const [currentProject, setCurrentProject] = useState<Project>({});
   const forceUpdate = () => setUpdate((update) => update + 1);
   const [open, setOpen] = useState<boolean>(false);
+  const [openBeneficiary, setBeneficiaryOpen] = useState<boolean>(false);
   const { data: hash, isPending, writeContract } = useWriteContract();
   const { isLoading, isSuccess, isError, error } = useWaitForTransactionReceipt(
     { hash }
@@ -81,6 +67,41 @@ const Admin: NextPage = () => {
     handleFetchProjects();
   }, [update]);
 
+  const handleProjectAdd = (item: Project) => {
+    setCurrentProject(item);
+    setBeneficiaryOpen(!openBeneficiary);
+  };
+
+  const columns = [
+    { name: "Title", uid: "title" },
+    { name: "Image", uid: "url" },
+    { name: "Description", uid: "description" },
+    { name: "Amount", uid: "totalAmount" },
+    {
+      name: "EndTime",
+      uid: "endTime",
+      render: ({ endTime }: { endTime: number }) =>
+        new Date(endTime * 1000)
+          .toISOString()
+          ?.replace(".000Z", "")
+          ?.split("T")
+          ?.join(" ") || "-",
+    },
+    {
+      name: "Beneficiary",
+      uid: "beneficiary",
+      render: (item: Project) => (
+        <Button
+          color="primary"
+          size="sm"
+          onClick={() => handleProjectAdd(item)}
+        >
+          Add
+        </Button>
+      ),
+    },
+  ];
+
   return (
     <div>
       <Header />
@@ -98,6 +119,11 @@ const Admin: NextPage = () => {
           onCancel={() => setOpen(!open)}
         />
       </Modal>
+      <Beneficiary
+        open={openBeneficiary}
+        setOpen={setBeneficiaryOpen}
+        project={currentProject}
+      />
       <div className="mt-[24px] px-[16px]">
         <Button
           className="mb-[12px]"

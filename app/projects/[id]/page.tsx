@@ -1,6 +1,6 @@
 "use client";
-import { Project } from "@/app/type";
-import { fetchProjects } from "@/app/utils";
+import { Allocation, Donor, Project } from "@/app/type";
+import { fetchProjects, fetchDonations, fetchAllocations } from "@/app/utils";
 import { Button, Progress } from "@nextui-org/react";
 import { NextPage } from "next";
 import Head from "next/head";
@@ -18,11 +18,26 @@ const projects = new Array(12).fill(1).map((_, id) => ({
 }));
 
 const Page: NextPage = () => {
+  const [donors, setDonors] = useState<Donor[]>([]);
+  const [allocations, setAllocations] = useState<Allocation[]>([]);
   const [detail, setDetail] = useState<Project>({});
   const searchParams = useSearchParams();
   const { id } = useParams();
   const index = searchParams.get("index");
   const router = useRouter();
+
+  const handleFetchDonations = async (projectId: string) => {
+    if (projectId) {
+      const { data = {} } = await fetchDonations({ projectId });
+      setDonors(data.donors || []);
+    }
+  };
+  const handleFetchAllocations = async (projectId: string) => {
+    if (projectId) {
+      const { data = {} } = await fetchAllocations({ projectId });
+      setAllocations(data.allocations || []);
+    }
+  };
 
   const handleFetchProject = async (id?: string) => {
     if (id) {
@@ -34,8 +49,15 @@ const Page: NextPage = () => {
 
   useEffect(() => {
     handleFetchProject(id as string);
+    handleFetchDonations(id as string);
+    handleFetchAllocations(id as string);
   }, [id]);
 
+  const totalDonorsAmout = donors.reduce(
+    (acc, curr) => acc + Number(curr.amount),
+    0
+  );
+  console.log(totalDonorsAmout);
   return (
     <div>
       <Head>
@@ -71,7 +93,11 @@ const Page: NextPage = () => {
                     width={471}
                     height={257}
                   />
-                  <Progress size="sm" value={70} title="70%" />
+                  <Progress
+                    size="sm"
+                    value={totalDonorsAmout / detail.totalAmount!}
+                    title={String(totalDonorsAmout)}
+                  />
                 </div>
                 <div className="max-h-[287px] flex flex-col flex-1 justify-between">
                   <blockquote className="font-normal leading-[21px] text-[#909090] text-[14px]">
@@ -101,12 +127,19 @@ const Page: NextPage = () => {
               </Button>
             </div>
             <div className="mt-[15px] grid grid-cols-4 gap-x-[40px]">
-              {projects.slice(0, 4).map((p) => (
+              {(allocations || [])?.slice(0, 4).map((i) => (
                 <figure
-                  key={p.title}
+                  key={i._id}
                   className="box-border flex flex-col gap-[14px] w-[290px] h-[160px] bg-white hover:shadow-[0px_1px_10px_0px_rgba(0,119,222,0.25)] rounded-[10px] overflow-hidde"
-                  onClick={() => router.push(`/projects/${p.id}`)}
-                ></figure>
+                >
+                  <p className="font-normal leading-[24px] text-[20px] text-[rgba(0,0,0,1)]">
+                    {i?.donor?.substring(0, 3)}***
+                    {i?.donor?.substring(
+                      i?.donor?.length - 3,
+                      i?.donor?.length || 0
+                    )}
+                  </p>
+                </figure>
               ))}
             </div>
           </section>
@@ -123,17 +156,26 @@ const Page: NextPage = () => {
               </Button>
             </div>
             <div className="mt-[15px] grid grid-cols-4 gap-x-[40px]">
-              {projects.slice(0, 4).map((p) => (
+              {(donors || []).slice(0, 4)?.map((i) => (
                 <figure
-                  key={p.title}
-                  className="box-border flex flex-col items-center justify-center gap-[14px] w-[290px] h-[160px] bg-white hover:shadow-[0px_1px_10px_0px_rgba(0,119,222,0.25)] rounded-[10px] overflow-hidde"
-                  onClick={() => router.push(`/projects/${p.id}`)}
+                  key={i._id}
+                  className="box-border flex flex-col items-center justify-center gap-[14px] w-[290px] h-[160px] bg-white hover:shadow-[0px_1px_10px_0px_rgba(0,119,222,0.25)] rounded-[10px] overflow-hidde cursor-pointer"
+                  onClick={() =>
+                    window.open(
+                      `https://sepolia.etherscan.io/tx/${i.hash}`,
+                      "_blank"
+                    )
+                  }
                 >
                   <p className="font-normal leading-[24px] text-[20px] text-[rgba(0,0,0,1)]">
-                    ADO***ANE
+                    {i?.donor?.substring(0, 3)}***
+                    {i?.donor?.substring(
+                      i?.donor?.length - 3,
+                      i?.donor?.length || 0
+                    )}
                   </p>
                   <span className="font-bold leading-[30px] text-[24px] text-[rgba(94,219,208,1)]">
-                    0 ETH
+                    {i?.amount} {i?.currency}
                   </span>
                 </figure>
               ))}

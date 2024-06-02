@@ -101,8 +101,8 @@ const Page: NextPage = () => {
                 className={isSuccess ? "" : "animate-shake"}
                 src={
                   isSuccess
-                    ? "/images/donate/loading.svg"
-                    : "/images/donate/success.svg"
+                    ? "/images/donate/success.svg"
+                    : "/images/donate/loading.svg"
                 }
                 width={348}
                 height={290}
@@ -120,7 +120,7 @@ const Page: NextPage = () => {
                   >
                     View on Etherscan
                   </a>
-                  <Nft open={nftOpen} onClose={() => setNftOpen(!open)} />
+                  <Nft open={nftOpen} setOpen={setNftOpen} />
                 </div>
               )}
             </div>
@@ -152,7 +152,7 @@ const Page: NextPage = () => {
                 _assests: "eth",
               }}
               disabled={isPending}
-              loading={isLoading}
+              loading={isLoading || isPending}
               fields={[
                 {
                   type: "select",

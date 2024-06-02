@@ -9,3 +9,21 @@ export interface Project {
     title?: string;
     totalAmount?: number;
 }
+
+export interface Donor {
+    _id?: string;
+    amount?: string;
+    currency?: string;
+    donor?: string;
+    hash?: number;
+    project?: string;
+}
+
+export interface Allocation {
+    _id?: string;
+    amount?: string;
+    currency?: string;
+    donor?: string;
+    hash?: number;
+    project?: string;
+}
